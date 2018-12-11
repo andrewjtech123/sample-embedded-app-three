@@ -2,6 +2,15 @@ import App from 'next/app';
 import Head from 'next/head';
 import { AppProvider } from '@shopify/polaris';
 import '@shopify/polaris/styles.css';
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo'
+
+const client = new ApolloClient({
+ fetchOptions: {
+   credentials: 'include'
+ }
+});
+
 
 class Wrapper extends React.Component {
   state = { workaround: false };
@@ -31,7 +40,7 @@ class MyApp extends App {
     const { Component, pageProps } = this.props;
     return (
       <Wrapper>
-        <Component {...pageProps} />
+        <ApolloProvider client={client}><Component {...pageProps} /></ApolloProvider>
       </Wrapper>
     );
   }
