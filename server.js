@@ -24,6 +24,7 @@ app.prepare().then(() => {
   const router = new Router();
   server.use(session(server));
   server.keys = [SHOPIFY_API_SECRET_KEY];
+
   router.post('/webhooks/products/create', validateWebhook);
 
   router.get('/', routerFunctions.processPayment);
@@ -43,7 +44,6 @@ app.prepare().then(() => {
             test: true,
           },
         });
-
         const stringifiedWebhookParams = JSON.stringify({
           webhook: {
             topic: 'products/create',
@@ -51,7 +51,6 @@ app.prepare().then(() => {
             format: 'json',
           },
         });
-
         const options = {
           method: 'POST',
           body: stringifiedBillingParams,
@@ -102,6 +101,7 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;
     return
   });
+
   server.listen(port, () => {
     console.log(`> Ready on http://localhost:${port}`);
   });
