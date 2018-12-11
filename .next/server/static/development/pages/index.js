@@ -112,6 +112,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _shopify_polaris__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var store_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! store-js */ "store-js");
 /* harmony import */ var store_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(store_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _shopify_app_bridge_actions__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @shopify/app-bridge/actions */ "@shopify/app-bridge/actions");
+/* harmony import */ var _shopify_app_bridge_actions__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_shopify_app_bridge_actions__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! prop-types */ "prop-types");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_6__);
 
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -124,13 +128,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _templateObject() {
   var data = _taggedTemplateLiteral(["\n  query getProducts($ids: [ID!]!) {\n    nodes(ids: $ids) {\n      ... on Product {\n        title\n        handle\n        descriptionHtml\n        id\n        images(first: 1) {\n          edges {\n            node {\n              originalSrc\n              altText\n            }\n          }\n        }\n        variants(first: 1) {\n          edges {\n            node {\n              price\n              id\n            }\n          }\n        }\n      }\n    }\n  }\n"]);
@@ -148,6 +154,8 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
 
 
 
+
+
 var GET_PRODUCTS_BY_ID = graphql_tag__WEBPACK_IMPORTED_MODULE_1___default()(_templateObject());
 
 var ResourceListWithProducts =
@@ -156,14 +164,30 @@ function (_React$Component) {
   _inherits(ResourceListWithProducts, _React$Component);
 
   function ResourceListWithProducts() {
+    var _getPrototypeOf2;
+
+    var _this;
+
     _classCallCheck(this, ResourceListWithProducts);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(ResourceListWithProducts).apply(this, arguments));
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _possibleConstructorReturn(this, (_getPrototypeOf2 = _getPrototypeOf(ResourceListWithProducts)).call.apply(_getPrototypeOf2, [this].concat(args)));
+
+    _defineProperty(_assertThisInitialized(_assertThisInitialized(_this)), "state", {
+      item: ''
+    });
+
+    return _this;
   }
 
   _createClass(ResourceListWithProducts, [{
     key: "render",
     value: function render() {
+      var twoWeeksFromNow = new Date(Date.now() + 12096e5).toDateString();
+      var redirect = _shopify_app_bridge_actions__WEBPACK_IMPORTED_MODULE_5__["Redirect"].create(this.context.polaris.appBridge);
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_apollo__WEBPACK_IMPORTED_MODULE_2__["Query"], {
         query: GET_PRODUCTS_BY_ID,
         variables: {
@@ -178,13 +202,44 @@ function (_React$Component) {
         console.log(data);
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Card"], {
           sectioned: true
-        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "stuff here"));
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["ResourceList"], {
+          showHeader: true,
+          resourceName: {
+            singular: 'Product',
+            plural: 'Products'
+          },
+          items: data.nodes,
+          renderItem: function renderItem(item) {
+            var media = react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Thumbnail"], {
+              source: item.images.edges[0] ? item.images.edges[0].node.originalSrc : '',
+              alt: item.images.edges[0] ? item.images.edges[0].node.originalSrc : ''
+            });
+            var price = item.variants.edges[0].node.price;
+            return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["ResourceList"].Item, {
+              id: item.id,
+              media: media,
+              accessibilityLabel: "View details for ".concat(item.title),
+              onClick: function onClick() {
+                store_js__WEBPACK_IMPORTED_MODULE_4___default.a.set('item', item);
+                redirect.dispatch(_shopify_app_bridge_actions__WEBPACK_IMPORTED_MODULE_5__["Redirect"].Action.APP, '/edit-products');
+              }
+            }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Stack"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Stack"].Item, {
+              fill: true
+            }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["TextStyle"], {
+              variation: "strong"
+            }, item.title))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Stack"].Item, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "$", price)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_3__["Stack"].Item, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Expires on ", twoWeeksFromNow, " "))));
+          }
+        }));
       });
     }
   }]);
 
   return ResourceListWithProducts;
 }(react__WEBPACK_IMPORTED_MODULE_0___default.a.Component);
+
+_defineProperty(ResourceListWithProducts, "contextTypes", {
+  polaris: prop_types__WEBPACK_IMPORTED_MODULE_6__["object"]
+});
 
 /* harmony default export */ __webpack_exports__["default"] = (ResourceListWithProducts);
 
@@ -258,11 +313,12 @@ function (_React$Component) {
       var idsFromResources = resources.selection.map(function (product) {
         return product.id;
       });
-      store_js__WEBPACK_IMPORTED_MODULE_2___default.a.set('ids', idsFromResources);
 
       _this.setState({
         open: false
       });
+
+      store_js__WEBPACK_IMPORTED_MODULE_2___default.a.set('ids', idsFromResources);
     });
 
     return _this;
@@ -273,6 +329,7 @@ function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
+      var emptyState = !store_js__WEBPACK_IMPORTED_MODULE_2___default.a.get('ids');
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["Page"], {
         primaryAction: {
           content: 'Select products',
@@ -282,7 +339,7 @@ function (_React$Component) {
             });
           }
         }
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["Layout"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["ResourcePicker"], {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["ResourcePicker"], {
         resourceType: "Product",
         showVariants: false,
         open: this.state.open,
@@ -294,7 +351,7 @@ function (_React$Component) {
             open: false
           });
         }
-      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["EmptyState"], {
+      }), emptyState ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["Layout"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_shopify_polaris__WEBPACK_IMPORTED_MODULE_1__["EmptyState"], {
         heading: "Select products to start",
         action: {
           content: 'Select Products',
@@ -305,7 +362,7 @@ function (_React$Component) {
           }
         },
         image: "https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Select products and change their price temporarily.")), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_ResourceList__WEBPACK_IMPORTED_MODULE_3__["default"], null)));
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", null, "Select products and change their price temporarily."))) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_components_ResourceList__WEBPACK_IMPORTED_MODULE_3__["default"], null));
     }
   }]);
 
@@ -328,6 +385,17 @@ module.exports = __webpack_require__(/*! ./pages/index.js */"./pages/index.js");
 
 /***/ }),
 
+/***/ "@shopify/app-bridge/actions":
+/*!**********************************************!*\
+  !*** external "@shopify/app-bridge/actions" ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("@shopify/app-bridge/actions");
+
+/***/ }),
+
 /***/ "@shopify/polaris":
 /*!***********************************!*\
   !*** external "@shopify/polaris" ***!
@@ -347,6 +415,17 @@ module.exports = require("@shopify/polaris");
 /***/ (function(module, exports) {
 
 module.exports = require("graphql-tag");
+
+/***/ }),
+
+/***/ "prop-types":
+/*!*****************************!*\
+  !*** external "prop-types" ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("prop-types");
 
 /***/ }),
 
