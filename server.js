@@ -13,6 +13,8 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const routerFunctions = require('./server/router');
+const validateWebhook = require('./server/webhooks');
+const bodyParser = require('koa-bodyparser');
 
 dotenv.config();
 const { SHOPIFY_API_SECRET_KEY, SHOPIFY_API_KEY, TUNNEL_URL } = process.env;
@@ -22,6 +24,7 @@ app.prepare().then(() => {
   const router = new Router();
   server.use(session(server));
   server.keys = [SHOPIFY_API_SECRET_KEY];
+  router.post('/webhooks/products/create', validateWebhook);
 
   router.get('/', routerFunctions.processPayment);
 
@@ -40,6 +43,15 @@ app.prepare().then(() => {
             test: true,
           },
         });
+
+        const stringifiedWebhookParams = JSON.stringify({
+          webhook: {
+            topic: 'products/create',
+            address: `${TUNNEL_URL}/webhooks/products/create`,
+            format: 'json',
+          },
+        });
+
         const options = {
           method: 'POST',
           body: stringifiedBillingParams,
@@ -49,6 +61,21 @@ app.prepare().then(() => {
             'Content-Type': 'application/json',
           },
         };
+        const webhookOptions = {
+          method: 'POST',
+          body: stringifiedWebhookParams,
+          credentials: 'include',
+          headers: {
+            'X-Shopify-Access-Token': accessToken,
+            'Content-Type': 'application/json',
+          },
+        };
+        await fetch(`https://${shop}/admin/webhooks.json`, webhookOptions)
+          .then((response) => response.json())
+          .then((jsonData) =>
+            console.log('webhook response', JSON.stringify(jsonData)),
+          )
+          .catch((error) => console.log('webhook error', error));
 
         const confirmationURL = await fetch(
           `https://${shop}/admin/recurring_application_charges.json`,
@@ -66,6 +93,7 @@ app.prepare().then(() => {
   );
 
   server.use(graphQLProxy());
+  server.use(bodyParser());
   server.use(router.routes());
   server.use(verifyRequest());
   server.use(async (ctx) => {
